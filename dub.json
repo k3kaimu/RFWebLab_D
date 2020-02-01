@@ -1,0 +1,13 @@
+{
+	"authors": [
+		"Kazuki Komatsu"
+	],
+	"copyright": "Copyright © 2020, Kazuki Komatsu",
+	"dependencies": {
+		"requests": "~>1.0.12"
+	},
+	"dflags": ["-checkaction=context"],
+	"description": "Client of RFWebLab",
+	"license": "NYSL",
+	"name": "rfweblab_client"
+}
