@@ -8,6 +8,7 @@ import std.array;
 import std.complex;
 import std.conv;
 import std.digest.md;
+import std.exception;
 import std.getopt;
 import std.meta;
 import std.path;
@@ -41,6 +42,9 @@ void main(string[] args)
     }
 
     assert(rq.Re_data);
+
+    auto status = getStatusOfRFWebLab();
+    enforce(!status.isDown, "RF WebLab is now down. Please see http://dpdcompetition.com/rfweblab/");
 
     auto filename = requestToRFWebLab(rq);
     writeln(filename);
@@ -162,4 +166,30 @@ ubyte[16] matlabDigest(const(ubyte)[] binary)
     digest.put(binary);
 
     return digest.finish();
+}
+
+
+
+struct RFWebLabStatus
+{
+    bool isDown;
+    uint queue;
+}
+
+
+RFWebLabStatus getStatusOfRFWebLab()
+{
+    RFWebLabStatus status;
+
+    auto webpage = cast(const(char)[])getContent("http://dpdcompetition.com/rfweblab/").data;
+    if(webpage.canFind(`<div class=statustextoff>Down</div>`)) {
+        status.isDown = true;
+    } else {
+        status.isDown = false;
+    }
+
+    auto counter = cast(const(char)[])getContent("http://dpdcompetition.com/rfweblab/matlab/count.php").data;
+    status.queue = counter.matchFirst(ctRegex!`\d+`)[0].to!uint;
+
+    return status;
 }
